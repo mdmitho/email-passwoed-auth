@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import app from "./firebase.init";
@@ -55,6 +55,7 @@ const [password,setPassword] =useState('')
         console.log(user);
         setEmail('')
         setPassword('')
+        verifyEmail()
       })
       .catch(error =>{
         console.error(error)
@@ -64,6 +65,19 @@ const [password,setPassword] =useState('')
   
     event.preventDefault();
   };
+  const handlePasswordReset=()=>{
+    sendPasswordResetEmail(auth, email)
+    .then(()=>{
+      console.log("email sent");
+    })
+  }
+  const verifyEmail =()=>{
+
+    sendEmailVerification(auth.currentUser)
+    .then(()=>{
+      console.log('Email Verefication Sent');
+    })
+  }
   return (
     <div className="w-50 mx-auto mt-5">
       <h1 className="mb-4 text-primary ">Please {registered ? 'login': 'Register'}</h1>
@@ -91,6 +105,7 @@ const [password,setPassword] =useState('')
       
         </Form.Group>
         <p className="text-danger">{error}</p>
+        <Button onClick={handlePasswordReset} variant="link">Forget Password?</Button><br /><br />
         <Button variant="primary" type="submit">
           Submit
         </Button>
