@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import app from "./firebase.init";
@@ -12,8 +12,13 @@ function App() {
   const [validated, setValidated] = useState(false);
   const [registered, setRegistered] = useState(false)
   const [error,setError] =useState()
+  const [name, setName] =useState()
 const [email, setEmail] = useState('')
 const [password,setPassword] =useState('')
+
+const handleNameBlur = event =>{
+  setName (event.target.value)
+}
 
   const handleEmailBlur = (event) => {
    setEmail(event.target.value);
@@ -56,6 +61,7 @@ const [password,setPassword] =useState('')
         setEmail('')
         setPassword('')
         verifyEmail()
+        setUserName()
       })
       .catch(error =>{
         console.error(error)
@@ -71,6 +77,15 @@ const [password,setPassword] =useState('')
       console.log("email sent");
     })
   }
+  const setUserName =()=>{
+    updateProfile(auth.currentUser)
+    .then(() => {
+      console.log('updating name')
+    })
+    .catch(error => {
+      setError(error.message)
+    })
+  }
   const verifyEmail =()=>{
 
     sendEmailVerification(auth.currentUser)
@@ -82,11 +97,21 @@ const [password,setPassword] =useState('')
     <div className="w-50 mx-auto mt-5">
       <h1 className="mb-4 text-primary ">Please {registered ? 'login': 'Register'}</h1>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
+       
+       
+    {   !registered && <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Your name</Form.Label>
+          <Form.Control onBlur={handleNameBlur} type="text" placeholder="Your name" required />
+          <Form.Control.Feedback type="invalid">
+            Please provide your name.
+          </Form.Control.Feedback>
+        </Form.Group>}
+   
         <Form.Group className="mb-3" controlId="formBasicEmail">
           <Form.Label>Email address</Form.Label>
           <Form.Control onBlur={handleEmailBlur} type="email" placeholder="Enter email" required />
           <Form.Control.Feedback type="invalid">
-            Please provide a valid password.
+            Please provide a valid email.
           </Form.Control.Feedback>
           <Form.Text className="text-muted">
             We'll never share your email with anyone else.
@@ -104,6 +129,7 @@ const [password,setPassword] =useState('')
           <Form.Check onChange={handleRegisterChange} type="checkbox" label="Already Registered?" />
       
         </Form.Group>
+        {/* <p className="text-success">{'success'}</p> */}
         <p className="text-danger">{error}</p>
         <Button onClick={handlePasswordReset} variant="link">Forget Password?</Button><br /><br />
         <Button variant="primary" type="submit">
